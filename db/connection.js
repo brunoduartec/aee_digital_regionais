@@ -1,6 +1,7 @@
-const config = require("../env.json");
+const env = process.env.NODE_ENV ? process.env.NODE_ENV : "local";
+const config = require("../env.json")[env];
 
-mongoConfig = config["local"].mongo;
+mongoConfig = config.mongo;
 
 const mongoose = require("mongoose");
 const connection = `mongodb://${mongoConfig.host}:${mongoConfig.port}/${mongoConfig.database}`;
