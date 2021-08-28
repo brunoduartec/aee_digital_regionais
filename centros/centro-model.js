@@ -17,7 +17,7 @@ const centroSchema = new Schema({
   },
   DATA_FUNDACAO: {
     type: String,
-    require: true,
+    require: false,
   },
   REGIONAL: {
     type: Schema.Types.ObjectId,
@@ -56,33 +56,17 @@ const centroSchema = new Schema({
     require: true,
   },
   PRESIDENTE_ID: {
-    type: String,
+    type: Schema.Types.ObjectId,
     require: false,
   },
-  ASSISTIDOS: {
-    type: Number,
-    required: false,
-  },
-  VOLUNTARIOS: {
-    type: Number,
-    required: false,
-  },
-  PRELETORES: {
-    type: Number,
-    required: false,
-  },
-  ENTREVISTADORES: {
-    type: Number,
-    required: false,
-  },
   FUNCIONAMENTO: {
-    SEGUNDA: [Number],
-    TERCA: [Number],
-    QUARTA: [Number],
-    QUINTA: [Number],
-    SEXTA: [Number],
-    SABADO: [Number],
-    DOMINGO: [Number],
+    segunda: [String],
+    terca: [String],
+    quarta: [String],
+    quinta: [String],
+    sexta: [String],
+    sabado: [String],
+    domingo: [String],
   },
 });
 

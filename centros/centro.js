@@ -48,9 +48,9 @@ module.exports = function makeCentro(centroInfo = requiredParam("centroInfo")) {
 
   function normalizeDate(date) {
     let charToSplit = "/";
-    if (typeof date == "object") {
-      date = date.toISOString();
-    }
+    // if (typeof date == "object") {
+    //   date = date.toISOString();
+    // }
 
     if (
       date.match(/^([0-9]*-[0-9]*-[0-9]*T[0-9]*:[0-9]*:[0-9]*.[0-9]*Z)$/) ||
@@ -96,7 +96,7 @@ module.exports = function makeCentro(centroInfo = requiredParam("centroInfo")) {
     FUNCIONAMENTO,
     _id,
   }) {
-    DATA_FUNDACAO = normalizeDate(DATA_FUNDACAO);
+    // DATA_FUNDACAO = normalizeDate(DATA_FUNDACAO);
     NOME_CENTRO = normalizeText(NOME_CENTRO);
     BAIRRO = normalizeText(BAIRRO);
     CIDADE = normalizeText(CIDADE);
