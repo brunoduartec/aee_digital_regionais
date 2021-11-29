@@ -16,12 +16,16 @@ services:
       - "mongo"
     links:
       - mongo
+    networks:
+      - aee_digital_backend
   mongo:
     image: mongo
     volumes:
       - ./data/db:/data/db
     ports:
       - "3010:27017"
+    networks:
+      - aee_digital_backend
   mongo-express:
     image: mongo-express
     environment:
@@ -31,4 +35,10 @@ services:
       - mongo
     ports:
       - "30001:8081"
+    networks:
+      - aee_digital_backend
     restart: always
+networks:
+  aee_digital_backend:
+    name: aee_digital_backend
+    driver: bridge
