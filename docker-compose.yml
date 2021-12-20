@@ -11,7 +11,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - .:/app
+      - .:/usr/app
     depends_on:
       - "mongo"
     links:
