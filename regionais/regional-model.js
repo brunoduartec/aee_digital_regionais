@@ -14,6 +14,10 @@ const regionalSchema = new Schema({
     type: String,
     require: true,
   },
+  COORDENADOR_ID: {
+    type: Schema.Types.ObjectId,
+    require: false,
+  },
 });
 
 module.exports = {
