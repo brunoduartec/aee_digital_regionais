@@ -19,6 +19,7 @@ services:
     networks:
       - aee_digital_backend
       - aee_regional_db
+    restart: always
   mongo:
     image: mongo
     volumes:
@@ -27,6 +28,7 @@ services:
       - "3010:27017"
     networks:
       - aee_regional_db
+    restart: always
   mongo-express:
     image: mongo-express
     environment:

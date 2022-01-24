@@ -33,7 +33,7 @@ module.exports = function makeCentro(centroInfo = requiredParam("centroInfo")) {
   function validateName(label, name) {
     if (name.length < 2) {
       throw new InvalidPropertyError(
-        `O nome ${nome} tem que ter mais de 2 caracteres`
+        `O nome ${label} tem que ter mais de 2 caracteres`
       );
     }
   }
