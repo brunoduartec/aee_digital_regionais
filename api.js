@@ -3,6 +3,11 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 const Connection = require("./db/connection")();
+const Cache = require("./helpers/cache");
+const cache = new Cache();
+(async function(){
+  await cache.connect();
+})()
 
 const ModelFactory = require("./db/modelFactory");
 const CentroModel = require("./centros/centro-model");

@@ -1,3 +1,6 @@
+const Cache = require("../helpers/cache");
+const cache = new Cache();
+
 module.exports = function makeDb(ModelFactory) {
   return Object.freeze({
     add,
@@ -7,6 +10,26 @@ module.exports = function makeDb(ModelFactory) {
     replace,
     update,
   });
+
+  function getParamsParsed(params) {
+    let paramsParsed = "";
+  
+    let keys = Object.keys(params);
+  
+    for (let index = 0; index < keys.length; index++) {
+      const key = keys[index];
+      const value = params[key];
+  
+      if (value) {
+        paramsParsed = paramsParsed.concat(`&${key}=${decodeURIComponent(value)}`);
+      }
+    }
+  
+    console.log("getParamsParsed", paramsParsed.substring(1));
+  
+    return paramsParsed.substring(1);
+  }
+
 
   function formatParams(searchParams) {
     let items = Object.keys(searchParams);
@@ -58,6 +81,12 @@ module.exports = function makeDb(ModelFactory) {
   async function findByItems(modelName, max, params) {
     try {
       console.log("findByItems=>", params)
+
+      let paramsParsed = getParamsParsed(params)
+      const cachedItem = await cache.get(`${modelName}:${paramsParsed}`)
+      if(cachedItem)
+        return JSON.parse(cachedItem)
+
       const modelInfo = ModelFactory.getModel(modelName);
       const Model = modelInfo.model;
       const populate = modelInfo.populate;
@@ -90,7 +119,8 @@ module.exports = function makeDb(ModelFactory) {
         return validate;
       })
 
-        
+      cache.set(`${modelName}:${paramsParsed}`, item)
+
       return item;
     } catch (error) {
       throw error;
@@ -100,6 +130,10 @@ module.exports = function makeDb(ModelFactory) {
     try {
       const modelInfo = ModelFactory.getModel(modelName);
 
+      const cachedItem = await cache.get(`${modelName}`)
+      if(cachedItem)
+        return JSON.parse(cachedItem)
+
       const Model = modelInfo.model;
       const populate = modelInfo.populate;
 
@@ -107,6 +141,7 @@ module.exports = function makeDb(ModelFactory) {
       let items = await Model.find().populate(populateTags);
 
       if (items && items.length > 0) {
+        cache.set(`${modelName}`, items)
         return items;
       } else {
         return null;

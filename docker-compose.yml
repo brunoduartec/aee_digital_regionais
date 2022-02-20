@@ -14,8 +14,10 @@ services:
       - .:/usr/app
     depends_on:
       - "mongo"
+      - "redis"
     links:
       - mongo
+      - redis
     networks:
       - aee_digital_backend
       - aee_regional_db
@@ -40,6 +42,16 @@ services:
       - "30001:8081"
     networks:
       - aee_regional_db
+    restart: always
+  redis:
+    image: redis
+    command: redis-server --appendonly yes --port 6380
+    ports:
+      - "6380:6380"
+    networks:
+      - aee_digital_backend
+    volumes:
+      - ./data/cache:/var/lib/postgresql/data
     restart: always
 networks:
   aee_digital_backend:
