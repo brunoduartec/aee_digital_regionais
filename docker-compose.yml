@@ -53,7 +53,7 @@ services:
     volumes:
       - ./data/cache:/var/lib/postgresql/data
     restart: always
-  redis-commander:
+  redis-commander-regionais:
     container_name: redis-commander
     hostname: redis-commander
     image: rediscommander/redis-commander:latest
