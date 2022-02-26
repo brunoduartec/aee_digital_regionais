@@ -31,7 +31,7 @@ module.exports = class Cache{
 
     async set(key,value){
         await this.client.set(key, JSON.stringify(value), {
-            EX: 60*60,
+            EX: 7*24*60*60,
             NX: true
           });
     }
