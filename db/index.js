@@ -113,7 +113,7 @@ module.exports = function makeDb(ModelFactory) {
             itemToSearch = itemToSearch[paramsSplited[1]]
           }
 
-          validate = validate && itemToSearch.toString().includes(values[index]);
+          validate = validate && itemToSearch.toString() === (values[index]);
         }
         
         return validate;
