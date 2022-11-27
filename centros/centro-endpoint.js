@@ -52,17 +52,24 @@ module.exports = function makeCentroEndpointHandler({ centroList }) {
     const { max, ...params } = httpRequest.queryParams || {};
 
     let searchParams = formatSearchParam(id, params);
-    let hasParams = searchParams != null;
+
+    let fieldParams = searchParams?.fields ?JSON.parse(JSON.stringify(searchParams.fields)):null;
+    if(searchParams?.fields)
+      delete searchParams.fields
+
+    let hasParams =searchParams ? Object.keys(searchParams).length > 0 : false
     let result = [];
 
     if (hasParams) {
       result = await centroList.findByItems({
         max,
         searchParams,
+        fieldParams
       });
     } else {
       result = await centroList.getItems({
         max,
+        fieldParams
       });
     }
 

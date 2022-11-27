@@ -8,20 +8,22 @@
     "url": "https://github.com/brunoduartec/aee_tech.git"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "node index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "body-parser": "^1.19.0",
+    "body-parser": "^1.20.0",
     "cors": "^2.8.5",
-    "express": "^4.17.1",
+    "express": "^4.18.2",
     "http": "0.0.1-security",
-    "mongoose": "^5.9.15",
-    "redis": "^4.0.3",
-    "swagger-jsdoc": "^4.0.0",
-    "swagger-ui-express": "^4.1.4"
+    "mongoose": "6.7.3",
+    "redis": "^4.5.0",
+    "swagger-ui-express": "^4.6.0"
+  },
+  "devDependencies": {
+    "jest": "^29.3.1"
   }
 }

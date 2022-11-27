@@ -17,7 +17,8 @@ module.exports = function makeCentroList({ database }) {
     if (items) {
       if (items.length > 0) {
         items.forEach((item) => {
-          let centro = makeCentro(item);
+          // let centro = makeCentro(item);
+          let centro = item
           centros.push(centro);
         });
       }
@@ -35,9 +36,9 @@ module.exports = function makeCentroList({ database }) {
       throw error;
     }
   }
-  async function findByItems({ max, searchParams }) {
+  async function findByItems({ max, searchParams, fieldParams }) {
     try {
-      let centro = await database.findByItems("centro", max, searchParams);
+      let centro = await database.findByItems("centro", max, searchParams, fieldParams);
 
       const centros = formatOutput(centro);
       return centros;
@@ -46,9 +47,9 @@ module.exports = function makeCentroList({ database }) {
       throw error;
     }
   }
-  async function getItems({ max }) {
+  async function getItems({ max, fieldParams }) {
     try {
-      let items = await database.getItems("centro", max);
+      let items = await database.getItems("centro", max, fieldParams);
       const centros = formatOutput(items);
       return centros;
     } catch (error) {
