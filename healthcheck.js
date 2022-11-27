@@ -7,7 +7,6 @@ async function check(_req, res, _next){
 		timestamp: Date.now()
 	};
 	try {
-        console.log("------ENTROU----")
 		res.send(healthcheck);
 	} catch (e) {
 		healthcheck.message = e;

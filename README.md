@@ -1,8 +1,9 @@
-# aee_tech
-Projeto para aplicativos da Aliança Espirita Evangelica
+# aee_digital_regionais
 
+Projeto de backend para aplicativos da Aliança Espirita Evangelica.
 
 # Prerequisitos
+
 Instale docker
 
 # Rodando

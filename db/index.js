@@ -1,145 +1,294 @@
-const Database = require('../helpers/Database')
+const Cache = require("../helpers/cache");
+const cache = new Cache();
+const Logger = require("../helpers/logger");
+const logger = new Logger()
 
-const env = process.env.NODE_ENV ? process.env.NODE_ENV : "development";
-const config = require('../env.json')[env]
+module.exports = function makeDb(ModelFactory) {
+  return Object.freeze({
+    add,
+    findByItems,
+    getItems,
+    remove,
+    replace,
+    update,
+  });
 
-const database = new Database(config.mysql).getInstance();
+  function getParamsParsed(params) {
+    let paramsParsed = "";
 
-const setup = require('./setup')
-exports.setup = setup.bootstrap
+    let keys = Object.keys(params);
 
-module.exports = function makeDb() {
-    return Object.freeze({
-        add,
-        findById,
-        getItems,
-        remove,
-        replace,
-        update
-    })
+    for (let index = 0; index < keys.length; index++) {
+      const key = keys[index];
+      const value = params[key];
 
-    function setConditionQueryPart(conditions) {
-        let query = ""
-        let conditionKeysToAdd = Object.keys(conditions)
-        let conditionValuesToAdd = Object.values(conditions)
-
-        for (let index = 0; index < conditionKeysToAdd.length; index++) {
-            const param = conditionKeysToAdd[index];
-            const condition = conditionValuesToAdd[index];
-
-            const typeOfCondition = typeof condition;
-            if (typeOfCondition == "string") {
-                query += (param + "= '" + condition + "'")
-            } else {
-                query += (param + "= " + condition)
-            }
-        }
-
-        return query
+      if (value) {
+        paramsParsed = paramsParsed.concat(
+          `&${key}=${decodeURIComponent(value)}`
+        );
+      }
     }
 
-    async function add(table, values) {
-        let keysToAdd = Object.keys(values)
-        let valuesToAdd = Object.values(values)
+    logger.info("getParamsParsed", paramsParsed.substring(1));
 
-        let query = "INSERT INTO " + table + "(";
+    return paramsParsed.substring(1);
+  }
 
-        for (let index = 0; index < keysToAdd.length; index++) {
-            const param = keysToAdd[index];
-            query += (param + ",")
+  function formatParams(searchParams) {
+    let items = Object.keys(searchParams);
+    let values = Object.values(searchParams);
+
+    searchParams = {};
+    for (let index = 0; index < items.length; index++) {
+      let item = items[index];
+      const value = values[index];
+      if (item == "ID" || item == "id") {
+        item = "_id";
+      }
+
+      if (item.toLocaleLowerCase().includes("_id")) {
+        searchParams[item] = value;
+      } else {
+        searchParams[item] = { $regex: value };
+      }
+    }
+
+    return searchParams;
+  }
+
+  function formatFieldParams(fieldParams){
+    const params = fieldParams.split(",")
+    let paramsParsed = {}
+
+    for (let index = 0; index < params.length; index++) {
+      const element = params[index];
+      paramsParsed[element] = 1
+    }
+
+    return paramsParsed
+  }
+
+  function populateItems(populateInfo) {
+    let populateConcatTrimed;
+    if (populateInfo && populateInfo.length > 0) {
+      let populateConcat = "";
+
+      for (let index = 0; index < populateInfo.length; index++) {
+        const element = populateInfo[index];
+        populateConcat = populateConcat.concat(` ${element}`);
+      }
+
+      populateConcatTrimed = populateConcat.trim();
+    }
+    return populateConcatTrimed;
+  }
+
+  async function add(modelName, itemInfo) {
+    try {
+      const Model = ModelFactory.getModel(modelName).model;
+      item = new Model(itemInfo);
+
+      await cache.remove(`${modelName}*`)
+
+      return await item.save();
+    } catch (error) {
+      throw error;
+    }
+  }
+  async function findByItems(modelName, max, params, fieldParams) {
+    try {
+      logger.info("findByItems=>", params);
+
+      let paramsParsed = getParamsParsed(params);
+      let cachedItem
+
+      if(fieldParams){
+        cachedItem = await cache.get(`${modelName}:${paramsParsed}:${fieldParams}`);
+        if(cachedItem)return JSON.parse(cachedItem)
+      }else{
+        cachedItem = await cache.get(`${modelName}:${paramsParsed}`);
+        if (cachedItem){
+          let  cacheParsed = JSON.parse(cachedItem);
+          if(fieldParams){
+            let fieldParamsParsed = formatFieldParams(fieldParams)
+            cacheParsed = cacheParsed.map((m)=>{
+              const item = {}
+  
+              fieldParamsParsed.forEach(field => {
+                item[field] = m[field]
+              });
+              return item
+            })
+
+            cache.set(`${modelName}:${paramsParsed}:${fieldParams}`, cacheParsed);
+            return cacheParsed
+
+          }else{
+            return cacheParsed
+          }
+        }
+      }
+
+      const modelInfo = ModelFactory.getModel(modelName);
+      const Model = modelInfo.model;
+      const populate = modelInfo.populate;
+
+      let items = Object.keys(params);
+      let values = Object.values(params);
+
+      let populateTags = populateItems(populate);
+
+      let item
+
+      if(fieldParams){
+        let fieldParamsParsed = formatFieldParams(fieldParams)
+        item = await Model.find({}).populate(populateTags).select(fieldParamsParsed).lean();
+      }else{
+        item = await Model.find({}).populate(populateTags).lean();
+      }
+
+
+      item = item.filter((m) => {
+        let validate = true;
+
+        for (let index = 0; index < items.length; index++) {
+          const it = items[index];
+
+          let paramsSplited = it.split(".");
+
+          itemToSearch = m[paramsSplited[0]];
+
+          if (paramsSplited.length > 1) {
+            itemToSearch = itemToSearch[paramsSplited[1]];
+          }
+
+          validate = validate && itemToSearch?.toString() === values[index];
         }
 
-        //removes the last comma
-        query = query.substring(0, query.length - 1);
+        return validate;
+      });
 
-        query += ") VALUES ("
+      if(fieldParams){
+        cache.set(`${modelName}:${paramsParsed}:${fieldParams}`, item);
+      }
+      else{
+        cache.set(`${modelName}:${paramsParsed}`, item);
+      }
 
-        for (let index = 0; index < valuesToAdd.length; index++) {
-            const value = valuesToAdd[index];
-            const typeOfValue = typeof value;
-            if (typeOfValue == "string") {
-                query += ("'" + value + "',")
-            } else {
-                query += (value + ",")
-            }
+      return item;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async function getItems(modelName, max, fieldParams) {
+    try {
+      const modelInfo = ModelFactory.getModel(modelName);
+
+      let cachedItem;
+
+      if(fieldParams){
+        cachedItem = await cache.get(`${modelName}:${fieldParams}`);
+        if(cachedItem)return JSON.parse(cachedItem)
+      }else{
+        cachedItem = await cache.get(`${modelName}`);
+        if (cachedItem){
+          let  cacheParsed = JSON.parse(cachedItem);
+          if(fieldParams){
+            let fieldParamsParsed = formatFieldParams(fieldParams)
+            cacheParsed = cacheParsed.map((m)=>{
+              const item = {}
+  
+              fieldParamsParsed.forEach(field => {
+                item[field] = m[field]
+              });
+              return item
+            })
+
+            cache.set(`${modelName}:${fieldParams}`, cacheParsed);
+            return cacheParsed
+
+          }else{
+            return cacheParsed
+          }
+        }
+      }
+
+      const Model = modelInfo.model;
+      const populate = modelInfo.populate;
+
+      
+      let populateTags = populateItems(populate);
+      let items 
+      
+      if(fieldParams){
+        let fieldParamsParsed = formatFieldParams(fieldParams)
+        items = await Model.find().populate(populateTags).select(fieldParamsParsed);
+      }
+      else{
+        items = await Model.find().populate(populateTags);
+      }
+      
+      if (items && items.length > 0) {
+        cache.set(`${modelName}`, items);
+        return items;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+  async function remove(modelName, conditions) {
+    try {
+      const ModelInfo = ModelFactory.getModel(modelName);
+      const Model = ModelInfo.model;
+      conditions = formatParams(conditions);
+
+      await cache.remove(`${modelName}*`)
+
+      const result = await Model.deleteOne(conditions);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async function replace(modelName, item, conditions) {
+    try {
+      const ModelInfo = ModelFactory.getModel(modelName);
+      const Model = ModelInfo.model;
+      conditions = formatParams(conditions);
+
+      await cache.remove(`${modelName}*`)
+      const result = await Model.replaceOne(conditions, item);
+      return result;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async function update(modelName, item, conditions) {
+    try {
+      const ModelInfo = ModelFactory.getModel(modelName);
+      const Model = ModelInfo.model;
+      conditions = formatParams(conditions);
+
+      await cache.remove(`${modelName}*`)
+      const result = await Model.updateOne(conditions, item);
+
+      if(result.acknowledged)
+        if(result.modifiedCount>0){
+          return {modified: result.modifiedCount};
+        }
+        else{
+          return {
+            "message" : "No item modified"
+          }
         }
 
-        //removes the last comma
-        query = query.substring(0, query.length - 1);
-
-        query += ")"
-
-        return await database.query(query);
-    }
-    async function findById(table, params, conditions, max, searchParam, searchValue) {
-        let query = 'SELECT ';
-
-        for (let index = 0; index < params.length; index++) {
-            const param = params[index];
-            query += (param + ",")
+        else{
+          return {"message": "Query parameter not found"}
         }
-
-        //removes the last comma
-        query = query.substring(0, query.length - 1);
-        query += (" From " + table + " WHERE ")
-
-        if (searchParam) {
-            query += `${searchParam} LIKE '%${searchValue}%';`
-        } else {
-            query += (setConditionQueryPart(conditions));
-        }
-        let ret = await database.query(query);
-
-        return ret
+    } catch (error) {
+      throw error;
     }
-    async function getItems(table, params, max, search) {
-        let query = 'SELECT ';
-
-        for (let index = 0; index < params.length; index++) {
-            const param = params[index];
-            query += (param + ",")
-        }
-
-        //removes the last comma
-        query = query.substring(0, query.length - 1);
-
-        query += (" From " + table)
-
-        return await database.query(query);
-    }
-    async function remove(table, conditions) {
-        let query = "DELETE FROM " + table + " WHERE "
-        query += (setConditionQueryPart(conditions));
-
-        return await database.query(query);
-    }
-    async function replace(table, values, conditions) {
-        await remove(table, conditions)
-        await add(table, values)
-    }
-    async function update(table, values, conditions) {
-        let keysToAdd = Object.keys(values)
-        let valuesToAdd = Object.values(values)
-
-        let query = "UPDATE " + table + " SET";
-
-        for (let index = 0; index < keysToAdd.length; index++) {
-            const param = keysToAdd[index];
-            const value = valuesToAdd[index];
-
-            const typeOfValue = typeof value;
-            if (typeOfValue == "string") {
-                query += (" " + param + " = '" + value + "',")
-            } else {
-                query += (" " + param + " = " + value + ",")
-            }
-        }
-
-        //removes the last comma
-        query = query.substring(0, query.length - 1);
-
-        query += ("  WHERE ");
-        query += (setConditionQueryPart(conditions));
-        return await database.query(query);
-    }
-}
+  }
+};

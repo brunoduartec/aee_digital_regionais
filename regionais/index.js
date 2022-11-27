@@ -1,13 +1,15 @@
-const makeDb = require('../db')
-const makeRegionalList = require('./regional-list')
-const makeRegionalEndpointHandler = require('./regional-endpoint')
+const makeDb = require("../db");
+const makeRegionalList = require("./regional-list");
+const makeRegionalEndpointHandler = require("./regional-endpoint");
 
-const database = makeDb()
+let ModelFactory = require("../db/modelFactory");
+const database = makeDb(ModelFactory);
+
 const regionalList = makeRegionalList({
-    database
-})
+  database,
+});
 const contactsEndpointHandler = makeRegionalEndpointHandler({
-    regionalList
-})
+  regionalList,
+});
 
-module.exports = contactsEndpointHandler
+module.exports = contactsEndpointHandler;

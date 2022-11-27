@@ -1,206 +1,196 @@
 const {
-    UniqueConstraintError,
-    InvalidPropertyError,
-    RequiredParameterError
-} = require('../helpers/errors')
-const makeHttpError = require('../helpers/http-error')
-const makeCentro = require('./centro')
+  UniqueConstraintError,
+  InvalidPropertyError,
+  RequiredParameterError,
+} = require("../helpers/errors");
+const makeHttpError = require("../helpers/http-error");
+const makeCentro = require("./centro");
 
-module.exports = function makeCentroEndpointHandler({
-    centroList
-}) {
-    return async function handle(httpRequest) {
-        switch (httpRequest.method) {
-            case 'POST':
-                return postCentro(httpRequest)
-                break;
-            case 'GET':
-                return getCentros(httpRequest)
-                break;
-            case 'DELETE':
-                return removeCentro(httpRequest)
-                break;
-            case 'PUT':
-                return updateCentro(httpRequest)
-                break;
+module.exports = function makeCentroEndpointHandler({ centroList }) {
+  return async function handle(httpRequest) {
+    switch (httpRequest.method) {
+      case "POST":
+        return post(httpRequest);
+        break;
+      case "GET":
+        return get(httpRequest);
+        break;
+      case "DELETE":
+        return remove(httpRequest);
+        break;
+      case "PUT":
+        return update(httpRequest);
+        break;
 
-            default:
-                return makeHttpError({
-                    statusCode: 405,
-                    errorMessage: `${httpRequest.method} method not allowed.`
-                })
-                break;
-        }
+      default:
+        let errorMessage = `${httpRequest.method} method not allowed.`;
+        console.log(errorMessage);
+
+        return makeHttpError({
+          statusCode: 405,
+          errorMessage: errorMessage,
+        });
+        break;
+    }
+  };
+
+  function formatSearchParam(id, params) {
+    let searchParams;
+    if (id) {
+      searchParams = {
+        id: id,
+      };
+    } else if (Object.keys(params).length > 0) {
+      searchParams = params;
     }
 
-    async function getCentros(httpRequest) {
-        const {
-            id
-        } = httpRequest.pathParams || {}
-        const {
-            max,
-            searchParam,
-            searchValue
-        } = httpRequest.queryParams || {}
+    return searchParams;
+  }
 
-        let hasQuery = function (id, searchParam, searchValue) {
-            return id || (searchParam && searchValue)
-        }
-        let searchParamConverted
-        if (searchParam) {
-            searchParamConverted = Number(searchParam)
-            searchParamConverted = convertSearchParam(searchParamConverted);
-        }
+  async function get(httpRequest) {
+    const { id } = httpRequest.pathParams || {};
+    const { max, ...params } = httpRequest.queryParams || {};
 
-        const result = hasQuery(id, searchParamConverted, searchValue) ? await centroList.findById({
-            centroId: id,
-            max,
-            searchParam: searchParamConverted,
-            searchValue
-        }) : await centroList.getItems({
-            max
-        })
+    let searchParams = formatSearchParam(id, params);
 
-        let centrosReturn = []
+    let fieldParams = searchParams?.fields ?JSON.parse(JSON.stringify(searchParams.fields)):null;
+    if(searchParams?.fields)
+      delete searchParams.fields
 
-        for (let index = 0; index < result.length; index++) {
-            const element = result[index];
-            const centroParsed = makeCentro(element);
-            centrosReturn.push(centroParsed)
-        }
+    let hasParams =searchParams ? Object.keys(searchParams).length > 0 : false
+    let result = [];
 
-        return {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            statusCode: 200,
-            data: JSON.stringify(centrosReturn)
-        }
+    if (hasParams) {
+      result = await centroList.findByItems({
+        max,
+        searchParams,
+        fieldParams
+      });
+    } else {
+      result = await centroList.getItems({
+        max,
+        fieldParams
+      });
     }
 
-    async function postCentro(httpRequest) {
-        let centroInfo = httpRequest.body
-        if (!centroInfo) {
-            return makeHttpError({
-                statusCode: 400,
-                errorMessage: 'Bad request. No POST body'
-            })
-        }
+    return {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      statusCode: 200,
+      data: JSON.stringify(result),
+    };
+  }
 
-        if (typeof httpRequest.body == 'string') {
-            try {
-                centroInfo = JSON.parse(centroInfo)
-            } catch {
-                return makeHttpError({
-                    statusCode: 400,
-                    errorMessage: 'Bad request. POST body must be valid JSON.'
-                })
-            }
-        }
-
-        try {
-            const centro = makeCentro(centroInfo)
-            const result = await centroList.add(centro)
-            return {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                statusCode: 201,
-                data: JSON.stringify(result)
-            }
-
-        } catch (e) {
-            return makeHttpError({
-                errorMessage: e.message,
-                statusCode: e instanceof UniqueConstraintError ?
-                    409 : e instanceof InvalidPropertyError ||
-                    e instanceof RequiredParameterError ?
-                    400 : 500
-            })
-        }
+  async function post(httpRequest) {
+    let centroInfo = httpRequest.body;
+    if (!centroInfo) {
+      return makeHttpError({
+        statusCode: 400,
+        errorMessage: "Bad request. No POST body",
+      });
     }
 
-    async function removeCentro(httpRequest) {
-        const {
-            id
-        } = httpRequest.pathParams || {}
-        const result = await centroList.remove({
-            centroId: id
-        })
-        return {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            statusCode: 200,
-            data: JSON.stringify(result)
-        }
+    if (typeof httpRequest.body == "string") {
+      try {
+        centroInfo = JSON.parse(centroInfo);
+      } catch {
+        return makeHttpError({
+          statusCode: 400,
+          errorMessage: "Bad request. POST body must be valid JSON.",
+        });
+      }
     }
 
-    async function updateCentro(httpRequest) {
-        const {
-            id
-        } = httpRequest.pathParams || {}
-        let centroInfo = httpRequest.body
-        if (!centroInfo) {
-            return makeHttpError({
-                statusCode: 400,
-                errorMessage: 'Bad request. No PUT body'
-            })
-        }
+    try {
+      const itemAdded = await centroList.add(centroInfo);
+      const result = makeCentro(itemAdded);
+      return {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        statusCode: 201,
+        data: JSON.stringify(result),
+      };
+    } catch (e) {
+      return makeHttpError({
+        errorMessage: e.message,
+        statusCode:
+          e instanceof UniqueConstraintError
+            ? 409
+            : e instanceof InvalidPropertyError ||
+              e instanceof RequiredParameterError
+            ? 400
+            : 500,
+      });
+    }
+  }
 
-        if (typeof httpRequest.body == 'string') {
-            try {
-                centroInfo = JSON.parse(centroInfo)
-            } catch {
-                return makeHttpError({
-                    statusCode: 400,
-                    errorMessage: 'Bad request. PUT body must be valid JSON.'
-                })
-            }
-        }
+  async function remove(httpRequest) {
+    const { id } = httpRequest.pathParams || {};
+    const { max, ...params } = httpRequest.queryParams || {};
 
-        try {
-            centroInfo.centroId = id
-            centroInfo = makeCentro(centroInfo)
-            const result = await centroList.update(centroInfo)
-            return {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                statusCode: 200,
-                data: JSON.stringify(result)
-            }
+    let searchParams = formatSearchParam(id, params);
 
-        } catch (e) {
-            return makeHttpError({
-                errorMessage: e.message,
-                statusCode: e instanceof UniqueConstraintError ?
-                    409 : e instanceof InvalidPropertyError ||
-                    e instanceof RequiredParameterError ?
-                    400 : 500
-            })
-        }
+    const result = await centroList.remove(searchParams);
+    return {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      statusCode: 200,
+      data: JSON.stringify(result),
+    };
+  }
+
+  async function update(httpRequest) {
+    const { id } = httpRequest.pathParams || {};
+    const { max, ...params } = httpRequest.queryParams || {};
+
+    let searchParams = formatSearchParam(id, params);
+
+    let centroInfo = httpRequest.body;
+    if (!centroInfo) {
+      return makeHttpError({
+        statusCode: 400,
+        errorMessage: "Bad request. No PUT body",
+      });
     }
 
-    function convertSearchParam(searchParam) {
-        switch (searchParam) {
-            case (1):
-                return "NOME_CENTRO";
-            case (2):
-                return "ID_REGIONAL"
-            case (3):
-                return "ENDERECO";
-            case (4):
-                return "CIDADE";
-            case (5):
-                return "ESTADO"
-            case (6):
-                return "PAIS"
-            case (7):
-                return "NOME_CURTO"
-            default:
-                return null;
-        };
+    if (typeof httpRequest.body == "string") {
+      try {
+        centroInfo = JSON.parse(centroInfo);
+      } catch {
+        return makeHttpError({
+          statusCode: 400,
+          errorMessage: "Bad request. PUT body must be valid JSON.",
+        });
+      }
     }
 
-}
+    try {
+      centroInfo.centroId = id;
+      const result = await centroList.update({
+        searchParams: searchParams,
+        centro: centroInfo,
+      });
+      return {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        statusCode: 200,
+        data: JSON.stringify(result),
+      };
+    } catch (e) {
+      return makeHttpError({
+        errorMessage: e.message,
+        statusCode:
+          e instanceof UniqueConstraintError
+            ? 409
+            : e instanceof InvalidPropertyError ||
+              e instanceof RequiredParameterError
+            ? 400
+            : 500,
+      });
+    }
+  }
+};

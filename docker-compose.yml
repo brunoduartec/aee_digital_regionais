@@ -1,43 +1,89 @@
-version: "3"
+version: '3.1'
 
 services:
-    db:
-        image: mysql:5.7
-        # container_name: db
-        volumes:
-          - ./.mysql-data/db:/var/lib/mysql
-        restart: always
-        ports:
-          - 52000:3306
-        expose:
-          - 52000
-        environment:
-          MYSQL_ROOT_PASSWORD: aeepw
-          MYSQL_DATABASE: aee
-          MYSQL_USER: aee
-          MYSQL_PASSWORD: aeepw
-        networks:
-            - aee_tech-network
-    adminer:
-        image: adminer
-        # container_name: adminer
-        ports:
-            - 8090:8080
-        networks:
-            - aee_tech-network
-    app:
-        build: .
-        command: npm start
-        # image: aee_tech_api
-        ports:
-            - "3000:3000"
-        volumes:
-            - .:/usr/app
-        networks:
-            - aee_tech-network
-        depends_on:
-            - "db"
-        tty: true
+  aee_digital_regionais:
+    environment:
+      - NODE_ENV=development
+    build: .
+    command: npm start
+    image: aee_digital_regionais
+    container_name: aee_digital_regionais
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/app
+    depends_on:
+      - "mongodb"
+      - "redis"
+    links:
+      - mongodb:mongodb
+      - redis
+    networks:
+      - aee_digital_backend
+      - aee_regional_db
+    restart: always
+  mongodb:
+    image: mongo
+    restart: always
+    container_name: mongodb
+    ports:
+      - 3010:27017
+    volumes:
+      - mongodb:/data/db:rw
+      - mongoconfig:/data/configdb:rw
+    networks:
+      - aee_regional_db
+  mongo-express:
+    image: mongo-express
+    restart: always
+    container_name: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_PORT=27017
+    depends_on:
+      - mongodb
+    ports:
+      - "30001:8081"
+    links:
+      - mongodb:mongodb
+    networks:
+      - aee_regional_db
+  redis:
+    image: redis
+    command: redis-server --appendonly yes --port 6380
+    ports:
+      - "6380:6380"
+    networks:
+      - aee_digital_backend
+    volumes:
+      - ./data/cache:/var/lib/postgresql/data
+    restart: always
+  redis-commander-regionais:
+    container_name: redis-commander-regionais
+    hostname: redis-commander-regionais
+    image: rediscommander/redis-commander:latest
+    restart: always
+    environment:
+      - REDIS_HOSTS=redis:redis:6380
+    ports:
+      - "6381:8081"
+    networks:
+      - aee_digital_backend
+
+volumes:
+  mongodb:
+    name: mongodb
+    driver: local
+    external: false
+  mongoconfig:
+    name: mongoconfig
+    driver: local
+    external: false
+
 networks:
-    aee_tech-network:
-        driver: bridge
+  aee_digital_backend:
+    name: aee_digital_backend
+    driver: bridge
+  aee_regional_db:
+    name: aee_regional_db
+    driver: bridge
