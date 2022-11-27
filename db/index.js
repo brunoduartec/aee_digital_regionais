@@ -1,5 +1,7 @@
 const Cache = require("../helpers/cache");
 const cache = new Cache();
+const Logger = require("../helpers/logger");
+const logger = new Logger()
 
 module.exports = function makeDb(ModelFactory) {
   return Object.freeze({
@@ -13,23 +15,24 @@ module.exports = function makeDb(ModelFactory) {
 
   function getParamsParsed(params) {
     let paramsParsed = "";
-  
+
     let keys = Object.keys(params);
-  
+
     for (let index = 0; index < keys.length; index++) {
       const key = keys[index];
       const value = params[key];
-  
+
       if (value) {
-        paramsParsed = paramsParsed.concat(`&${key}=${decodeURIComponent(value)}`);
+        paramsParsed = paramsParsed.concat(
+          `&${key}=${decodeURIComponent(value)}`
+        );
       }
     }
-  
-    console.log("getParamsParsed", paramsParsed.substring(1));
-  
+
+    logger.info("getParamsParsed", paramsParsed.substring(1));
+
     return paramsParsed.substring(1);
   }
-
 
   function formatParams(searchParams) {
     let items = Object.keys(searchParams);
@@ -37,9 +40,9 @@ module.exports = function makeDb(ModelFactory) {
 
     searchParams = {};
     for (let index = 0; index < items.length; index++) {
-      const item = items[index];
+      let item = items[index];
       const value = values[index];
-      if (item == "ID") {
+      if (item == "ID" || item == "id") {
         item = "_id";
       }
 
@@ -51,6 +54,18 @@ module.exports = function makeDb(ModelFactory) {
     }
 
     return searchParams;
+  }
+
+  function formatFieldParams(fieldParams){
+    const params = fieldParams.split(",")
+    let paramsParsed = {}
+
+    for (let index = 0; index < params.length; index++) {
+      const element = params[index];
+      paramsParsed[element] = 1
+    }
+
+    return paramsParsed
   }
 
   function populateItems(populateInfo) {
@@ -73,19 +88,46 @@ module.exports = function makeDb(ModelFactory) {
       const Model = ModelFactory.getModel(modelName).model;
       item = new Model(itemInfo);
 
+      await cache.remove(`${modelName}*`)
+
       return await item.save();
     } catch (error) {
       throw error;
     }
   }
-  async function findByItems(modelName, max, params) {
+  async function findByItems(modelName, max, params, fieldParams) {
     try {
-      console.log("findByItems=>", params)
+      logger.info("findByItems=>", params);
 
-      let paramsParsed = getParamsParsed(params)
-      const cachedItem = await cache.get(`${modelName}:${paramsParsed}`)
-      if(cachedItem)
-        return JSON.parse(cachedItem)
+      let paramsParsed = getParamsParsed(params);
+      let cachedItem
+
+      if(fieldParams){
+        cachedItem = await cache.get(`${modelName}:${paramsParsed}:${fieldParams}`);
+        if(cachedItem)return JSON.parse(cachedItem)
+      }else{
+        cachedItem = await cache.get(`${modelName}:${paramsParsed}`);
+        if (cachedItem){
+          let  cacheParsed = JSON.parse(cachedItem);
+          if(fieldParams){
+            let fieldParamsParsed = formatFieldParams(fieldParams)
+            cacheParsed = cacheParsed.map((m)=>{
+              const item = {}
+  
+              fieldParamsParsed.forEach(field => {
+                item[field] = m[field]
+              });
+              return item
+            })
+
+            cache.set(`${modelName}:${paramsParsed}:${fieldParams}`, cacheParsed);
+            return cacheParsed
+
+          }else{
+            return cacheParsed
+          }
+        }
+      }
 
       const modelInfo = ModelFactory.getModel(modelName);
       const Model = modelInfo.model;
@@ -96,52 +138,98 @@ module.exports = function makeDb(ModelFactory) {
 
       let populateTags = populateItems(populate);
 
-      let item = await Model.find({})
-      .populate(populateTags)
-      
-      item = item.filter((m)=>{
-        let validate = true
+      let item
+
+      if(fieldParams){
+        let fieldParamsParsed = formatFieldParams(fieldParams)
+        item = await Model.find({}).populate(populateTags).select(fieldParamsParsed).lean();
+      }else{
+        item = await Model.find({}).populate(populateTags).lean();
+      }
+
+
+      item = item.filter((m) => {
+        let validate = true;
 
         for (let index = 0; index < items.length; index++) {
           const it = items[index];
-          
+
           let paramsSplited = it.split(".");
 
-          itemToSearch = m[paramsSplited[0]]
+          itemToSearch = m[paramsSplited[0]];
 
-          if(paramsSplited.length>1){
-            itemToSearch = itemToSearch[paramsSplited[1]]
+          if (paramsSplited.length > 1) {
+            itemToSearch = itemToSearch[paramsSplited[1]];
           }
 
-          validate = validate && itemToSearch.toString() === (values[index]);
+          validate = validate && itemToSearch?.toString() === values[index];
         }
-        
-        return validate;
-      })
 
-      cache.set(`${modelName}:${paramsParsed}`, item)
+        return validate;
+      });
+
+      if(fieldParams){
+        cache.set(`${modelName}:${paramsParsed}:${fieldParams}`, item);
+      }
+      else{
+        cache.set(`${modelName}:${paramsParsed}`, item);
+      }
 
       return item;
     } catch (error) {
       throw error;
     }
   }
-  async function getItems(modelName, max) {
+  async function getItems(modelName, max, fieldParams) {
     try {
       const modelInfo = ModelFactory.getModel(modelName);
 
-      const cachedItem = await cache.get(`${modelName}`)
-      if(cachedItem)
-        return JSON.parse(cachedItem)
+      let cachedItem;
+
+      if(fieldParams){
+        cachedItem = await cache.get(`${modelName}:${fieldParams}`);
+        if(cachedItem)return JSON.parse(cachedItem)
+      }else{
+        cachedItem = await cache.get(`${modelName}`);
+        if (cachedItem){
+          let  cacheParsed = JSON.parse(cachedItem);
+          if(fieldParams){
+            let fieldParamsParsed = formatFieldParams(fieldParams)
+            cacheParsed = cacheParsed.map((m)=>{
+              const item = {}
+  
+              fieldParamsParsed.forEach(field => {
+                item[field] = m[field]
+              });
+              return item
+            })
+
+            cache.set(`${modelName}:${fieldParams}`, cacheParsed);
+            return cacheParsed
+
+          }else{
+            return cacheParsed
+          }
+        }
+      }
 
       const Model = modelInfo.model;
       const populate = modelInfo.populate;
 
+      
       let populateTags = populateItems(populate);
-      let items = await Model.find().populate(populateTags);
-
+      let items 
+      
+      if(fieldParams){
+        let fieldParamsParsed = formatFieldParams(fieldParams)
+        items = await Model.find().populate(populateTags).select(fieldParamsParsed);
+      }
+      else{
+        items = await Model.find().populate(populateTags);
+      }
+      
       if (items && items.length > 0) {
-        cache.set(`${modelName}`, items)
+        cache.set(`${modelName}`, items);
         return items;
       } else {
         return null;
@@ -155,6 +243,9 @@ module.exports = function makeDb(ModelFactory) {
       const ModelInfo = ModelFactory.getModel(modelName);
       const Model = ModelInfo.model;
       conditions = formatParams(conditions);
+
+      await cache.remove(`${modelName}*`)
+
       const result = await Model.deleteOne(conditions);
       return result;
     } catch (error) {
@@ -166,6 +257,8 @@ module.exports = function makeDb(ModelFactory) {
       const ModelInfo = ModelFactory.getModel(modelName);
       const Model = ModelInfo.model;
       conditions = formatParams(conditions);
+
+      await cache.remove(`${modelName}*`)
       const result = await Model.replaceOne(conditions, item);
       return result;
     } catch (error) {
@@ -177,8 +270,23 @@ module.exports = function makeDb(ModelFactory) {
       const ModelInfo = ModelFactory.getModel(modelName);
       const Model = ModelInfo.model;
       conditions = formatParams(conditions);
+
+      await cache.remove(`${modelName}*`)
       const result = await Model.updateOne(conditions, item);
-      return result;
+
+      if(result.acknowledged)
+        if(result.modifiedCount>0){
+          return {modified: result.modifiedCount};
+        }
+        else{
+          return {
+            "message" : "No item modified"
+          }
+        }
+
+        else{
+          return {"message": "Query parameter not found"}
+        }
     } catch (error) {
       throw error;
     }
