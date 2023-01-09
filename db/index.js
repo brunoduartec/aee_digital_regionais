@@ -142,31 +142,31 @@ module.exports = function makeDb(ModelFactory) {
 
       if(fieldParams){
         let fieldParamsParsed = formatFieldParams(fieldParams)
-        item = await Model.find({}).populate(populateTags).select(fieldParamsParsed).lean();
+        item = await Model.find(params).populate(populateTags).select(fieldParamsParsed).lean();
       }else{
-        item = await Model.find({}).populate(populateTags).lean();
+        item = await Model.find(params).populate(populateTags).lean();
       }
 
 
-      item = item.filter((m) => {
-        let validate = true;
+      // item = item.filter((m) => {
+      //   let validate = true;
 
-        for (let index = 0; index < items.length; index++) {
-          const it = items[index];
+      //   for (let index = 0; index < items.length; index++) {
+      //     const it = items[index];
 
-          let paramsSplited = it.split(".");
+      //     let paramsSplited = it.split(".");
 
-          itemToSearch = m[paramsSplited[0]];
+      //     itemToSearch = m[paramsSplited[0]];
 
-          if (paramsSplited.length > 1) {
-            itemToSearch = itemToSearch[paramsSplited[1]];
-          }
+      //     if (paramsSplited.length > 1) {
+      //       itemToSearch = itemToSearch[paramsSplited[1]];
+      //     }
 
-          validate = validate && itemToSearch?.toString() === values[index];
-        }
+      //     validate = validate && itemToSearch?.toString() === values[index];
+      //   }
 
-        return validate;
-      });
+      //   return validate;
+      // });
 
       if(fieldParams){
         cache.set(`${modelName}:${paramsParsed}:${fieldParams}`, item);

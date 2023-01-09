@@ -25,7 +25,6 @@ services:
   mongodb:
     image: mongo
     restart: always
-    container_name: mongodb
     ports:
       - 3010:27017
     volumes:
@@ -33,10 +32,10 @@ services:
       - mongoconfig:/data/configdb:rw
     networks:
       - aee_regional_db
+      - aee_digital_backend
   mongo-express:
     image: mongo-express
     restart: always
-    container_name: mongo-express
     environment:
       - ME_CONFIG_MONGODB_SERVER=mongodb
       - ME_CONFIG_MONGODB_PORT=27017
@@ -72,11 +71,11 @@ services:
 
 volumes:
   mongodb:
-    name: mongodb
+    name: mongodb_regionais
     driver: local
     external: false
   mongoconfig:
-    name: mongoconfig
+    name: mongoconfig_regionais
     driver: local
     external: false
 
