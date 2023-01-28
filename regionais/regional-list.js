@@ -10,20 +10,7 @@ module.exports = function makeRegionalList({ database }) {
     replace,
     update,
   });
-  function formatOutput(items) {
-    let regionals = [];
 
-    if (items) {
-      if (items.length > 0) {
-        items.forEach((item) => {
-          let regional = makeRegional(item);
-          regionals.push(regional);
-        });
-      }
-    }
-
-    return regionals;
-  }
 
   async function add(regionalInfo) {
     let regional = makeRegional(regionalInfo);
@@ -31,15 +18,12 @@ module.exports = function makeRegionalList({ database }) {
   }
 
   async function findByItems({ max, searchParams }) {
-    let regional = await database.findByItems("regional", max, searchParams);
-    const regionals = formatOutput(regional);
+    let regionals = await database.findByItems("regional", max, searchParams);
 
     return regionals;
   }
   async function getItems({ max }) {
-    let items = await database.getItems("regional", max);
-
-    const regionals = formatOutput(items);
+    let regionals = await database.getItems("regional", max);
 
     return regionals;
   }
