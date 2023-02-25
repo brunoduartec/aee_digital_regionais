@@ -1,0 +1,323 @@
+
+{
+    _id: ObjectId('63990a0d017b31000838e10e'),
+    FUNCIONAMENTO: {
+        segunda: [
+            '14:00'
+        ],
+        terca: [],
+        quarta: [
+            '20:00'
+        ],
+        quinta: [],
+        sexta: [],
+        sabado: [
+            '8:00',
+            ' 14:00'
+        ],
+        domingo: []
+    },
+    NOME_CENTRO: 'teste',
+    NOME_CURTO: 'teste',
+    CNPJ_CENTRO: '57.595.134/0001-10',
+    DATA_FUNDACAO: '8/5/1948',
+    REGIONAL: ObjectId('61b0ba7a71572500128b85dc'),
+    ENDERECO: 'Rua Barão Do Rio Branco, 430',
+    CEP: '09181-610',
+    BAIRRO: 'asd',
+    CIDADE: 'Santo André',
+    ESTADO: 'SP',
+    PAIS: 'Brasil'
+}
+
+ABC 61b0ba7a71572500128b85dc
+    Lar Espírita Anselmo Gomes
+    {
+    _id: ObjectId('61b0baad71572500128b85fa'),
+    FUNCIONAMENTO: {
+        segunda: [],
+        terca: [],
+        quarta: [],
+        quinta: [],
+        sexta: [],
+        sabado: [
+            '18:00'
+        ],
+        domingo: []
+    },
+    NOME_CENTRO: 'Lar Espírita Anselmo Gomes',
+    NOME_CURTO: 'Anselmo Gomes',
+    CNPJ_CENTRO: '43.385.528/0001-84',
+    DATA_FUNDACAO: '3/7/1977',
+    REGIONAL: ObjectId('61b0ba7a71572500128b85dc'),
+    ENDERECO: 'Rua Alcides Pizzolito Esq. C/Miguel Dos Santos, S/N',
+    CEP: '08663-050',
+    BAIRRO: 'Casa Branca',
+    CIDADE: 'Suzano',
+    ESTADO: 'SP',
+    PAIS: 'Brasil',
+    __v: 0
+}
+    União Espírita Jésus Gonçalves
+    {
+    _id: ObjectId('61b0bab171572500128b85fc'),
+    FUNCIONAMENTO: {
+        segunda: [
+            '19:45'
+        ],
+        terca: [],
+        quarta: [],
+        quinta: [
+            '19:45'
+        ],
+        sexta: [],
+        sabado: [],
+        domingo: []
+    },
+    NOME_CENTRO: 'União Espírita Jésus Gonçalves',
+    NOME_CURTO: 'Jésus Gonçalves',
+    CNPJ_CENTRO: '27.501.992/0001-97',
+    DATA_FUNDACAO: '10/11/2010',
+    REGIONAL: ObjectId('61b0ba7a71572500128b85dc'),
+    ENDERECO: 'Rua São Francisco, 336',
+    CEP: '09411-190',
+    BAIRRO: 'São Franscico',
+    CIDADE: 'Ribeirão Pires',
+    ESTADO: 'SP',
+    PAIS: 'Brasil',
+    __v: 0
+}
+
+Litoral Centro  61b0bb7c71572500128b8660
+    Amort Fraterno
+    {
+    _id: ObjectId('61b0bd2d71572500128b8741'),
+    FUNCIONAMENTO: {
+        segunda: [],
+        terca: [],
+        quarta: [
+            '20:30'
+        ],
+        quinta: [],
+        sexta: [],
+        sabado: [],
+        domingo: []
+    },
+    NOME_CENTRO: 'Centro Espírita Semente De Amor Fraterno',
+    NOME_CURTO: 'Amor Fraterno',
+    CNPJ_CENTRO: '34.716.457/0001-19',
+    DATA_FUNDACAO: '18/9/2009',
+    REGIONAL: ObjectId('61b0bb7c71572500128b8660'),
+    ENDERECO: 'Rua Antonio Bento De Amorim, 84',
+    CEP: '11070-170',
+    BAIRRO: 'Vl. Belmiro',
+    CIDADE: 'Santos',
+    ESTADO: 'SP',
+    PAIS: 'Brasil',
+    __v: 0
+}
+
+Nordeste    61b0bbd971572500128b868c
+    Casa de Amor Edgard Armond
+    {
+    _id: ObjectId('61f1e090b214d000129ab032'),
+    FUNCIONAMENTO: {
+        segunda: [
+            '19:30'
+        ],
+        terca: [],
+        quarta: [],
+        quinta: [
+            '19:30'
+        ],
+        sexta: [],
+        sabado: [],
+        domingo: []
+    },
+    NOME_CENTRO: 'Casa de Amor Edgard Armond',
+    NOME_CURTO: 'CAEA',
+    CNPJ_CENTRO: '--',
+    DATA_FUNDACAO: '1/0/2020',
+    REGIONAL: ObjectId('61b0bbd971572500128b868c'),
+    ENDERECO: 'Av. Ananias de Matos Arraiais SN',
+    CEP: '63570-000',
+    BAIRRO: 'Serraria 1',
+    CIDADE: 'Antonina',
+    ESTADO: 'CE',
+    PAIS: 'Brasil',
+    __v: 0
+}
+    Grupo Espírita União e Luz
+
+{
+    _id: ObjectId('61f1e08eb214d000129ab031'),
+    FUNCIONAMENTO: {
+        segunda: [],
+        terca: [],
+        quarta: [],
+        quinta: [],
+        sexta: [],
+        sabado: [],
+        domingo: [
+            '18:00'
+        ]
+    },
+    NOME_CENTRO: 'Grupo Espírita União e Luz',
+    NOME_CURTO: 'GEUL',
+    CNPJ_CENTRO: '--',
+    DATA_FUNDACAO: '26/1/2020',
+    REGIONAL: ObjectId('61b0bbd971572500128b868c'),
+    ENDERECO: 'Rua Antonio Guedes Neto N°109',
+    CEP: '63160-000',
+    BAIRRO: 'Centro',
+    CIDADE: 'Potengi',
+    ESTADO: 'CE',
+    PAIS: 'Brasil',
+    __v: 0
+}
+
+    Fraternidade Espírita Caminho Da Paz
+
+    {
+    _id: ObjectId('61b0bbe271572500128b8691'),
+    FUNCIONAMENTO: {
+        segunda: [],
+        terca: [],
+        quarta: [],
+        quinta: [],
+        sexta: [],
+        sabado: [],
+        domingo: [
+            '18:00'
+        ]
+    },
+    NOME_CENTRO: 'Fraternidade Espírita Caminho Da Paz',
+    NOME_CURTO: 'Caminho da Paz',
+    CNPJ_CENTRO: 'Não possui CNPJ',
+    REGIONAL: ObjectId('61b0bbd971572500128b868c'),
+    ENDERECO: 'Alto Do Cruzeiro, S/N',
+    CEP: 'sem CEP',
+    BAIRRO: 'Conceição Das Crioulas',
+    CIDADE: 'Salgueiro',
+    ESTADO: 'PE',
+    PAIS: 'Brasil',
+    __v: 0
+}
+
+
+    União Espírita Chico Xavier
+
+    {
+    _id: ObjectId('61b0bbf471572500128b8699'),
+    FUNCIONAMENTO: {
+        segunda: [],
+        terca: [],
+        quarta: [],
+        quinta: [
+            '19:00'
+        ],
+        sexta: [],
+        sabado: [],
+        domingo: []
+    },
+    NOME_CENTRO: 'União Espírita Chico Xavier',
+    NOME_CURTO: 'Chico Xavier',
+    CNPJ_CENTRO: 'Não possui CNPJ',
+    DATA_FUNDACAO: '16/10/2017',
+    REGIONAL: ObjectId('61b0bbd971572500128b868c'),
+    ENDERECO: 'Av. Cardoso De Sá',
+    CEP: '56302-110',
+    BAIRRO: 'Nossa Senhora Das Graças',
+    CIDADE: 'Petrolina',
+    ESTADO: 'PE',
+    PAIS: 'Brasil',
+    __v: 0
+}
+
+
+    Fraternidadee Espírita Casa do Caminho
+
+    {
+    _id: ObjectId('61f1e028b214d000129ab011'),
+    FUNCIONAMENTO: {
+        segunda: [],
+        terca: [],
+        quarta: [],
+        quinta: [],
+        sexta: [
+            '19:00'
+        ],
+        sabado: [],
+        domingo: []
+    },
+    NOME_CENTRO: 'Fraternidade Espírita Casa do Caminho',
+    NOME_CURTO: 'Casa do Caminho',
+    CNPJ_CENTRO: '--',
+    REGIONAL: ObjectId('61b0bbd971572500128b868c'),
+    ENDERECO: 'Rua nova, S/N Próximo o déposito Ze nilton',
+    CEP: '567900-00',
+    BAIRRO: 'Centro',
+    CIDADE: 'Porto Calvo',
+    ESTADO: 'AL',
+    PAIS: 'Brasil',
+    __v: 0
+}
+
+
+Ribeirão Preto  61b0bc0371572500128b86a0
+    Centro Espírita Casa do Caminho - Brodowski
+
+    {
+    _id: ObjectId('61b0bc2171572500128b86ae'),
+    FUNCIONAMENTO: {
+        segunda: [],
+        terca: [
+            '19:30'
+        ],
+        quarta: [],
+        quinta: [],
+        sexta: [],
+        sabado: [],
+        domingo: []
+    },
+    NOME_CENTRO: 'Centro Espírita Casa Do Caminho - Brodowski',
+    NOME_CURTO: 'Casa do Caminho',
+    CNPJ_CENTRO: '28.465.350/0001-42',
+    DATA_FUNDACAO: '23/2/2017',
+    REGIONAL: ObjectId('61b0bc0371572500128b86a0'),
+    ENDERECO: 'Av. Champagnat, 243',
+    CEP: '14340-000',
+    BAIRRO: 'Centro',
+    CIDADE: 'Brodowski',
+    ESTADO: 'SP',
+    PAIS: 'Brasil',
+    __v: 0
+}
+
+SP OESTE    61b0bcbb71572500128b86fd
+    Amigos da Luz Jaraguá
+
+    {
+    _id: ObjectId('6208528e4402380014a1084f'),
+    FUNCIONAMENTO: {
+        segunda: [],
+        terca: [],
+        quarta: [],
+        quinta: [],
+        sexta: [],
+        sabado: [],
+        domingo: []
+    },
+    NOME_CENTRO: 'Fraternidade Espírita Amigos Da Luz Jaraguá',
+    NOME_CURTO: 'Amigos da Luz',
+    CNPJ_CENTRO: '--',
+    DATA_FUNDACAO: '  ',
+    REGIONAL: ObjectId('61b0bcbb71572500128b86fd'),
+    ENDERECO: '  ',
+    CEP: '  ',
+    BAIRRO: '  ',
+    CIDADE: '  ',
+    ESTADO: '  ',
+    PAIS: ' ',
+    __v: 0
+}

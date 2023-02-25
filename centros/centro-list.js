@@ -24,6 +24,7 @@ module.exports = function makeCentroList({ database }) {
   }
   async function findByItems({ max, searchParams, fieldParams }) {
     try {
+      searchParams.IS_ACTIVE = searchParams.IS_ACTIVE || "true"
       let centros = await database.findByItems("centro", max, searchParams, fieldParams);
 
       return centros;
@@ -34,7 +35,11 @@ module.exports = function makeCentroList({ database }) {
   }
   async function getItems({ max, fieldParams }) {
     try {
-      let centros = await database.getItems("centro", max, fieldParams);
+      let searchParams = {
+        IS_ACTIVE:"true"
+      }
+      let centros = await database.findByItems("centro", max, searchParams, fieldParams);
+      // let centros = await database.getItems("centro", max, fieldParams);
       return centros;
     } catch (error) {
       console.log(error);

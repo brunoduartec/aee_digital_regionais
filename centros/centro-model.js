@@ -3,6 +3,11 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const centroSchema = new Schema({
+  IS_ACTIVE:{
+    type:Boolean,
+    required:false,
+    default:true
+  },
   NOME_CENTRO: {
     type: String,
     require: true,

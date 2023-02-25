@@ -18,13 +18,14 @@ module.exports = class Cache{
     }
 
     async connect(){
+        const instance = this
         try {
             await this.client.connect();
             logger.info("Redis is connected")
             
         } catch (error) {
             logger.error(`Error Connecting to Redis: ${error}`)
-            await setTimeout(connect, 5000);
+            await setTimeout(instance.connect, 5000);
         }
     }
 

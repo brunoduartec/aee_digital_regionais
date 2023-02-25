@@ -1,4 +1,4 @@
-version: '3.1'
+version: "3.5"
 
 services:
   aee_digital_regionais:
@@ -13,41 +13,36 @@ services:
     volumes:
       - .:/usr/app
     depends_on:
-      - "mongodb"
+      - "mongo"
       - "redis"
     links:
-      - mongodb:mongodb
+      - mongo
       - redis
     networks:
       - aee_digital_backend
       - aee_regional_db
     restart: always
-  mongodb:
-    image: mongo
-    restart: always
-    container_name: mongodb
-    ports:
-      - 3010:27017
+  mongo:
+    image: mongo:5.0.10
     volumes:
-      - mongodb:/data/db:rw
-      - mongoconfig:/data/configdb:rw
+      - ./data/db:/data/db
+    ports:
+      - "3010:27017"
     networks:
       - aee_regional_db
+    restart: always
   mongo-express:
     image: mongo-express
-    restart: always
-    container_name: mongo-express
     environment:
-      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_SERVER=mongo
       - ME_CONFIG_MONGODB_PORT=27017
     depends_on:
-      - mongodb
+      - mongo
     ports:
       - "30001:8081"
-    links:
-      - mongodb:mongodb
     networks:
       - aee_regional_db
+    restart: always
   redis:
     image: redis
     command: redis-server --appendonly yes --port 6380
@@ -64,22 +59,11 @@ services:
     image: rediscommander/redis-commander:latest
     restart: always
     environment:
-      - REDIS_HOSTS=redis:redis:6380
+    - REDIS_HOSTS=redis:redis:6380
     ports:
-      - "6381:8081"
+    - "6381:8081"
     networks:
       - aee_digital_backend
-
-volumes:
-  mongodb:
-    name: mongodb
-    driver: local
-    external: false
-  mongoconfig:
-    name: mongoconfig
-    driver: local
-    external: false
-
 networks:
   aee_digital_backend:
     name: aee_digital_backend
