@@ -70,7 +70,8 @@ function centroController(req, res) {
   handleCentroRequest(httpRequest)
     .then(({ headers, statusCode, data }) => {
       logger.info(`${httpRequest.method}:${httpRequest.path}`, {
-        httpRequest
+        httpRequest,
+        data
       })
       res.set(headers).status(statusCode).send(data);
     })
@@ -87,7 +88,8 @@ function regionalController(req, res) {
   handleRegionalRequest(httpRequest)
     .then(({ headers, statusCode, data }) => {
       logger.info(`${httpRequest.method}:${httpRequest.path}`, {
-        httpRequest
+        httpRequest,
+        data
       })
       res.set(headers).status(statusCode).send(data);
     })
