@@ -1,5 +1,5 @@
 const makeCentro = require("./centro");
-const { UniqueConstraintError } = require("../helpers/errors");
+const logger = require("../helpers/logger");
 
 module.exports = function makeCentroList({ database }) {
   return Object.freeze({
@@ -18,7 +18,7 @@ module.exports = function makeCentroList({ database }) {
       let centro = makeCentro(centroInfo);
       return await database.add("centro", centro);
     } catch (error) {
-      console.log(error);
+      logger.error("centros:centro-list:add", error);
       throw error;
     }
   }
@@ -28,7 +28,7 @@ module.exports = function makeCentroList({ database }) {
 
       return centros;
     } catch (error) {
-      console.log(error);
+      logger.error("centros:centro-list:findByItems",error);
       throw error;
     }
   }
@@ -37,7 +37,7 @@ module.exports = function makeCentroList({ database }) {
       let centros = await database.getItems("centro", max, fieldParams);
       return centros;
     } catch (error) {
-      console.log(error);
+      logger.error("centros:centro-list:getItems",error);
       throw error;
     }
   }
@@ -45,7 +45,7 @@ module.exports = function makeCentroList({ database }) {
     try {
       return await database.remove("centro", searchParams);
     } catch (error) {
-      console.log(error);
+      logger.error("centros:centro-list:remove",error);
       throw error;
     }
   }
@@ -53,7 +53,7 @@ module.exports = function makeCentroList({ database }) {
     try {
       return await database.replace("centro", centro, searchParams);
     } catch (error) {
-      console.log(error);
+      logger.error("centros:centro-list:replace",error);
       throw error;
     }
   }
@@ -61,7 +61,7 @@ module.exports = function makeCentroList({ database }) {
     try {
       return await database.update("centro", centro, searchParams);
     } catch (error) {
-      console.log(error);
+      logger.error("centros:centro-list:update",error);
       throw error;
     }
   }

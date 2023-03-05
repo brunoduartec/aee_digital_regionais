@@ -24,8 +24,6 @@ module.exports = function makeCentroEndpointHandler({ centroList }) {
 
       default:
         let errorMessage = `${httpRequest.method} method not allowed.`;
-        console.log(errorMessage);
-
         return makeHttpError({
           statusCode: 405,
           errorMessage: errorMessage,

@@ -1,7 +1,7 @@
 const Cache = require("../helpers/cache");
 const cache = new Cache();
-const Logger = require("../helpers/logger");
-const logger = new Logger()
+const logger = require("../helpers/logger");
+
 
 module.exports = function makeDb(ModelFactory) {
   return Object.freeze({
@@ -97,7 +97,7 @@ module.exports = function makeDb(ModelFactory) {
   }
   async function findByItems(modelName, max, params, fieldParams) {
     try {
-      logger.info("findByItems=>", params);
+      logger.info("findByItems=>", {params});
 
       let paramsParsed = getParamsParsed(params);
       let cachedItem

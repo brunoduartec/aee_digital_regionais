@@ -2,8 +2,7 @@ const env = process.env.NODE_ENV ? process.env.NODE_ENV : "local";
 const config = require("../env.json")[env];
 const redisConf = config.redis
 
-const Logger = require("./logger");
-const logger = new Logger()
+const logger = require("./logger");
 
 const redis = require("redis")
 

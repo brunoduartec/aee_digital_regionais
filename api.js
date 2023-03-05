@@ -1,5 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const correlationId = require('express-correlation-id');
+
 const cors = require("cors");
 
 const Connection = require("./db/connection")();
@@ -25,8 +27,12 @@ const adaptRequest = require("./helpers/adapt-request");
 const app = express();
 app.options("*", cors()); // include before other routes
 
+const logger = require("./helpers/logger");
+
+app.use(correlationId());
+
+
 app.use((req, res, next) => {
-  console.log("Acessou o Middleware!");
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
     "Access-Control-Allow-Headers",
@@ -63,10 +69,15 @@ function centroController(req, res) {
   const httpRequest = adaptRequest(req);
   handleCentroRequest(httpRequest)
     .then(({ headers, statusCode, data }) => {
+      logger.info(`${httpRequest.method}:${httpRequest.path}`, {
+        httpRequest
+      })
       res.set(headers).status(statusCode).send(data);
     })
     .catch((e) => {
-      console.log(e);
+      logger.error(e, {
+        httpRequest
+      });
       res.status(500).end();
     });
 }
@@ -75,10 +86,15 @@ function regionalController(req, res) {
   const httpRequest = adaptRequest(req);
   handleRegionalRequest(httpRequest)
     .then(({ headers, statusCode, data }) => {
+      logger.info(`${httpRequest.method}:${httpRequest.path}`, {
+        httpRequest
+      })
       res.set(headers).status(statusCode).send(data);
     })
     .catch((e) => {
-      console.log(e);
+      logger.error(e, {
+        httpRequest
+      });
       res.status(500).end();
     });
 }
