@@ -1,7 +1,8 @@
 const http = require("http");
 
 const api = require("./api")();
-const logger = require("./helpers/logger");
+const Logger = require("./helpers/logger");
+const logger = new Logger();
 
 
 const env = process.env.NODE_ENV ? process.env.NODE_ENV : "local";

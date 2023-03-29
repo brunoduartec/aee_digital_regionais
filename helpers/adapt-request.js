@@ -4,7 +4,6 @@ module.exports = function adaptRequest (req = {}) {
     method: req.method,
     pathParams: req.params,
     queryParams: req.query,
-    correlationId: req.correlationId(),
     body: req.body
   })
 }

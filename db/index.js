@@ -29,8 +29,6 @@ module.exports = function makeDb(ModelFactory) {
       }
     }
 
-    logger.info("getParamsParsed", paramsParsed.substring(1));
-
     return paramsParsed.substring(1);
   }
 
@@ -83,7 +81,7 @@ module.exports = function makeDb(ModelFactory) {
     return populateConcatTrimed;
   }
 
-  async function add(modelName, itemInfo) {
+  async function add(modelName, itemInfo, logger) {
     try {
       const Model = ModelFactory.getModel(modelName).model;
       item = new Model(itemInfo);
@@ -95,9 +93,9 @@ module.exports = function makeDb(ModelFactory) {
       throw error;
     }
   }
-  async function findByItems(modelName, max, params, fieldParams) {
+  async function findByItems(modelName, max, params, fieldParams, logger) {
     try {
-      logger.info("findByItems=>", {params});
+      logger.info("findByItems", {params});
 
       let paramsParsed = getParamsParsed(params);
       let cachedItem
@@ -180,7 +178,7 @@ module.exports = function makeDb(ModelFactory) {
       throw error;
     }
   }
-  async function getItems(modelName, max, fieldParams) {
+  async function getItems(modelName, max, fieldParams, logger) {
     try {
       const modelInfo = ModelFactory.getModel(modelName);
 
@@ -238,7 +236,7 @@ module.exports = function makeDb(ModelFactory) {
       throw error;
     }
   }
-  async function remove(modelName, conditions) {
+  async function remove(modelName, conditions, logger) {
     try {
       const ModelInfo = ModelFactory.getModel(modelName);
       const Model = ModelInfo.model;
@@ -265,7 +263,7 @@ module.exports = function makeDb(ModelFactory) {
       throw error;
     }
   }
-  async function update(modelName, item, conditions) {
+  async function update(modelName, item, conditions, logger) {
     try {
       const ModelInfo = ModelFactory.getModel(modelName);
       const Model = ModelInfo.model;

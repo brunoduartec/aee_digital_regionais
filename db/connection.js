@@ -1,6 +1,7 @@
 const env = process.env.NODE_ENV ? process.env.NODE_ENV : "local";
 const config = require("../env.json")[env];
-const logger = require("../helpers/logger");
+const Logger = require("../helpers/logger");
+const logger = new Logger();
 
 mongoConfig = config.mongo;
 
