@@ -24,7 +24,7 @@ services:
     restart: always
   mongodb:
     image: mongo
-    restart: always
+    restart: on-failure
     container_name: mongodb
     ports:
       - 3010:27017
@@ -33,6 +33,11 @@ services:
       - mongoconfig:/data/configdb:rw
     networks:
       - aee_regional_db
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.runCommand('ping').ok"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
   mongo-express:
     image: mongo-express
     restart: always

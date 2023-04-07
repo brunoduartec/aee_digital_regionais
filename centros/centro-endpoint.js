@@ -7,25 +7,23 @@ const makeHttpError = require("../helpers/http-error");
 const makeCentro = require("./centro");
 
 module.exports = function makeCentroEndpointHandler({ centroList }) {
-  return async function handle(httpRequest) {
+  return async function handle(httpRequest, logger) {
     switch (httpRequest.method) {
       case "POST":
-        return post(httpRequest);
+        return post(httpRequest, logger);
         break;
       case "GET":
-        return get(httpRequest);
+        return get(httpRequest, logger);
         break;
       case "DELETE":
-        return remove(httpRequest);
+        return remove(httpRequest, logger);
         break;
       case "PUT":
-        return update(httpRequest);
+        return update(httpRequest, logger);
         break;
 
       default:
         let errorMessage = `${httpRequest.method} method not allowed.`;
-        console.log(errorMessage);
-
         return makeHttpError({
           statusCode: 405,
           errorMessage: errorMessage,
@@ -47,7 +45,7 @@ module.exports = function makeCentroEndpointHandler({ centroList }) {
     return searchParams;
   }
 
-  async function get(httpRequest) {
+  async function get(httpRequest, logger) {
     const { id } = httpRequest.pathParams || {};
     const { max, ...params } = httpRequest.queryParams || {};
 
@@ -65,12 +63,12 @@ module.exports = function makeCentroEndpointHandler({ centroList }) {
         max,
         searchParams,
         fieldParams
-      });
+      }, logger);
     } else {
       result = await centroList.getItems({
         max,
         fieldParams
-      });
+      }, logger);
     }
 
     return {
@@ -82,7 +80,7 @@ module.exports = function makeCentroEndpointHandler({ centroList }) {
     };
   }
 
-  async function post(httpRequest) {
+  async function post(httpRequest, logger) {
     let centroInfo = httpRequest.body;
     if (!centroInfo) {
       return makeHttpError({
@@ -103,7 +101,7 @@ module.exports = function makeCentroEndpointHandler({ centroList }) {
     }
 
     try {
-      const itemAdded = await centroList.add(centroInfo);
+      const itemAdded = await centroList.add(centroInfo, logger);
       const result = makeCentro(itemAdded);
       return {
         headers: {
@@ -126,13 +124,13 @@ module.exports = function makeCentroEndpointHandler({ centroList }) {
     }
   }
 
-  async function remove(httpRequest) {
+  async function remove(httpRequest, logger) {
     const { id } = httpRequest.pathParams || {};
     const { max, ...params } = httpRequest.queryParams || {};
 
     let searchParams = formatSearchParam(id, params);
 
-    const result = await centroList.remove(searchParams);
+    const result = await centroList.remove(searchParams, logger);
     return {
       headers: {
         "Content-Type": "application/json",
@@ -142,7 +140,7 @@ module.exports = function makeCentroEndpointHandler({ centroList }) {
     };
   }
 
-  async function update(httpRequest) {
+  async function update(httpRequest, logger) {
     const { id } = httpRequest.pathParams || {};
     const { max, ...params } = httpRequest.queryParams || {};
 
@@ -172,7 +170,7 @@ module.exports = function makeCentroEndpointHandler({ centroList }) {
       const result = await centroList.update({
         searchParams: searchParams,
         centro: centroInfo,
-      });
+      }, logger);
       return {
         headers: {
           "Content-Type": "application/json",

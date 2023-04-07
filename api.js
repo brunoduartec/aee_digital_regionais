@@ -1,13 +1,12 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const correlationId = require('express-correlation-id');
+
 const cors = require("cors");
 
 const Connection = require("./db/connection")();
 const Cache = require("./helpers/cache");
 const cache = new Cache();
-(async function(){
-  await cache.connect();
-})()
 
 const ModelFactory = require("./db/modelFactory");
 const CentroModel = require("./centros/centro-model");
@@ -25,8 +24,13 @@ const adaptRequest = require("./helpers/adapt-request");
 const app = express();
 app.options("*", cors()); // include before other routes
 
+const Logger = require("./helpers/logger");
+const logger = new Logger();
+
+app.use(correlationId());
+
+
 app.use((req, res, next) => {
-  console.log("Acessou o Middleware!");
   res.header("Access-Control-Allow-Origin", "*");
   res.header(
     "Access-Control-Allow-Headers",
@@ -60,25 +64,43 @@ app.use("/api/v1/regionais/:id", regionalController);
 swaggerDoc(app);
 
 function centroController(req, res) {
+  const correlationId= req.correlationId()
+  const logger = new Logger()
+  logger.setCorrelation(correlationId)
   const httpRequest = adaptRequest(req);
-  handleCentroRequest(httpRequest)
+  handleCentroRequest(httpRequest, logger)
     .then(({ headers, statusCode, data }) => {
+      logger.info(`${httpRequest.method}:${httpRequest.path}`, {
+        httpRequest,
+        data
+      })
       res.set(headers).status(statusCode).send(data);
     })
     .catch((e) => {
-      console.log(e);
+      logger.error(e, {
+        httpRequest
+      });
       res.status(500).end();
     });
 }
 
 function regionalController(req, res) {
+  const correlationId= req.correlationId()
+  const logger = new Logger()
+  logger.setCorrelation(correlationId)
   const httpRequest = adaptRequest(req);
   handleRegionalRequest(httpRequest)
     .then(({ headers, statusCode, data }) => {
+      logger.info(`${httpRequest.method}:${httpRequest.path}`, {
+        httpRequest,
+        data
+      })
       res.set(headers).status(statusCode).send(data);
     })
     .catch((e) => {
-      console.log(e);
+      logger.error(e, {
+        httpRequest
+      });
       res.status(500).end();
     });
 }
