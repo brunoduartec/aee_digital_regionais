@@ -83,6 +83,3 @@ jobs:
           compose_file: docker-compose.yml
           pull: true
           build: true
-          environment:
-            - DB_STRING_CONNECTION=${{ env.DB_STRING_CONNECTION }}
-            - PORT=${{ env.PORT }}
