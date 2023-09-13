@@ -4,55 +4,23 @@ services:
   aee_digital_regionais:
     environment:
       - NODE_ENV=development
+      - DB_STRING_CONNECTION=${DB_STRING_CONNECTION}
+      - PORT=${PORT}
     build: .
     command: npm start
     image: aee_digital_regionais
     container_name: aee_digital_regionais
     ports:
-      - "3000:3000"
+      - "${PORT}:${PORT}"
     volumes:
       - .:/usr/app
     depends_on:
-      - "mongodb"
       - "redis"
     links:
-      - mongodb:mongodb
       - redis
     networks:
       - aee_digital_backend
-      - aee_regional_db
     restart: always
-  mongodb:
-    image: mongo
-    restart: on-failure
-    container_name: mongodb
-    ports:
-      - 3010:27017
-    volumes:
-      - mongodb:/data/db:rw
-      - mongoconfig:/data/configdb:rw
-    networks:
-      - aee_regional_db
-    healthcheck:
-      test: ["CMD", "mongo", "--eval", "db.runCommand('ping').ok"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-  mongo-express:
-    image: mongo-express
-    restart: always
-    container_name: mongo-express
-    environment:
-      - ME_CONFIG_MONGODB_SERVER=mongodb
-      - ME_CONFIG_MONGODB_PORT=27017
-    depends_on:
-      - mongodb
-    ports:
-      - "30001:8081"
-    links:
-      - mongodb:mongodb
-    networks:
-      - aee_regional_db
   redis:
     image: redis
     command: redis-server --appendonly yes --port 6380
@@ -74,21 +42,7 @@ services:
       - "6381:8081"
     networks:
       - aee_digital_backend
-
-volumes:
-  mongodb:
-    name: mongodb
-    driver: local
-    external: false
-  mongoconfig:
-    name: mongoconfig
-    driver: local
-    external: false
-
 networks:
   aee_digital_backend:
     name: aee_digital_backend
-    driver: bridge
-  aee_regional_db:
-    name: aee_regional_db
     driver: bridge

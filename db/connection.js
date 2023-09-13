@@ -4,7 +4,7 @@ const config = require("../env.json")[env];
 mongoConfig = config.mongo;
 
 const mongoose = require("mongoose");
-const connection = `mongodb://${mongoConfig.host}:${mongoConfig.port}/${mongoConfig.database}`;
+const connection = process.env.DB_STRING_CONNECTION;
 
 hasConnected = false;
 
