@@ -44,5 +44,4 @@ services:
       - aee_digital_backend
 networks:
   aee_digital_backend:
-    name: aee_digital_backend
     driver: bridge
