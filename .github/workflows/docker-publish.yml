@@ -13,8 +13,8 @@ env:
   # TODO: Change variable to your image's name.
   IMAGE_NAME: aee_digital_regionais
    # Novas variáveis
-   DB_STRING_CONNECTION: ${{ secrets.DB_STRING_CONNECTION }}
-   PORT: ${{ secrets.PORT }}
+  DB_STRING_CONNECTION: ${{ secrets.DB_STRING_CONNECTION }}
+  PORT: ${{ secrets.PORT }}
 
 jobs:
   # Run tests.
