@@ -61,7 +61,7 @@ jobs:
 
       - name: Deploy Docker Compose
         run: |
-          sudo docker-compose up -d -e DB_STRING_CONNECTION="${{secrets.DB_STRING_CONNECTION}}" -e PORT="${{secrets.PORT}}"
+          sudo docker-compose up -d -e DB_STRING_CONNECTION="${{secrets.DB_STRING_CONNECTION}}" -e PORT="${{secrets.PORT}}" --force-recreate
         
       - name: Log into registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
