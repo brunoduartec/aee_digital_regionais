@@ -59,14 +59,9 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 22
 
-      - name: Set Environment Variables
-        run: |
-            echo "export PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
-            echo "export DB_STRING_CONNECTION=${{ secrets.DB_STRING_CONNECTION }}" >> $GITHUB_ENV
-
       - name: Deploy Docker Compose
         run: |
-          sudo docker-compose up -d
+          sudo docker-compose up -d -e DB_STRING_CONNECTION="${{secrets.DB_STRING_CONNECTION}}" -e PORT="${{secrets.PORT}}"
         
       - name: Log into registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
