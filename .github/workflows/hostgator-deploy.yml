@@ -55,12 +55,14 @@ jobs:
 
       - name: Setup SSH
         uses: appleboy/ssh-action@v1.0.0
+        env:
+          PORT: ${PORT}
+          DB_STRING_CONNECTION: ${DB_STRING_CONNECTION}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
           script: |
-            echo "PORT=${PORT}" > .env
-            echo "DB_STRING_CONNECTION=${DB_STRING_CONNECTION}" >> .env
+            pwd
             docker-compose up -d
