@@ -63,6 +63,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
+          envs: PORT,DB_STRING_CONNECTION
           script: |
-            pwd
+            ls -lah
             docker-compose up -d
