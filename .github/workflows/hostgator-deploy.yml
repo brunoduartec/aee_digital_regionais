@@ -64,8 +64,8 @@ jobs:
       - name: Deploy Docker Compose
         run: |
           echo "Exporting ENVVARS"
-          sudo export PORT=$PORT
-          sudo export DB_STRING_CONNECTION=$DB_STRING_CONNECTION
+          export PORT=${PORT}
+          export DB_STRING_CONNECTION=${DB_STRING_CONNECTION}
           echo "Deploying"
           sudo docker-compose up -d
     
