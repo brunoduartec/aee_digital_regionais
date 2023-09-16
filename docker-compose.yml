@@ -1,4 +1,7 @@
 version: '3.1'
+networks:
+  aee_digital_backend:
+    name: aee_digital_backend
 
 services:
   aee_digital_regionais:
@@ -42,6 +45,3 @@ services:
       - "6381:8081"
     networks:
       - aee_digital_backend
-networks:
-  aee_digital_backend:
-    driver: bridge
