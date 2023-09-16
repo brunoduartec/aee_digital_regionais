@@ -60,12 +60,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
-      - name: Create .env file
-        run: |
-          echo "PORT=${PORT}" > .env
-          echo "DB_STRING_CONNECTION=${DB_STRING_CONNECTION}" >> .env
-
-      - name: Deploy Docker Compose
-        run: |
-          sudo docker-compose up -d
-    
+          script: |
+            echo "PORT=${PORT}" > .env
+            echo "DB_STRING_CONNECTION=${DB_STRING_CONNECTION}" >> .env
+            docker-compose up -d
