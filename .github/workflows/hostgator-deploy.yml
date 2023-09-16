@@ -11,6 +11,8 @@ on:
 env:
   # TODO: Change variable to your image's name.
   IMAGE_NAME: aee_digital_regionais
+  PORT: ${{ secrets.PORT }}
+  DB_STRING_CONNECTION: ${{secrets.DEV_DB_STRING_CONNECTION}}
 
 jobs:
   build:
@@ -63,8 +65,8 @@ jobs:
           port: 22
       - name: Use Environment Variable
         run: |
-          echo "The DB_STRING_CONNECTION is $DEV_DB_STRING_CONNECTION"
-          echo "The PORT is $DEV_PORT"
+          echo "The DB_STRING_CONNECTION is $DB_STRING_CONNECTION"
+          echo "The PORT is $PORT"
 
       - name: Deploy Docker Compose
         run: |
