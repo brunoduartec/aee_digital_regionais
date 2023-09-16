@@ -11,6 +11,8 @@ on:
 env:
   # TODO: Change variable to your image's name.
   IMAGE_NAME: aee_digital_regionais
+  PORT: ${{ secrets.PORT }}
+  DB_STRING_CONNECTION: ${{secrets.DEV_DB_STRING_CONNECTION}}
 
 jobs:
   build:
