@@ -61,17 +61,12 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 22
       - name: Use Environment Variable
-        env:
-          PORT: ${{ secrets.PORT }}
-          DB_STRING_CONNECTION: ${{ secrets.DB_STRING_CONNECTION }}
         run: |
-          echo "The DB_STRING_CONNECTION is $DB_STRING_CONNECTION"
+          pwd
           echo "The PORT is $PORT"
+          echo "The DB_STRING_CONNECTION is $DB_STRING_CONNECTION"
 
       - name: Deploy Docker Compose
-        env:
-          PORT: ${{ secrets.PORT }}
-          DB_STRING_CONNECTION: ${{ secrets.DB_STRING_CONNECTION }}
         run: |
           sudo docker-compose up -d
     
